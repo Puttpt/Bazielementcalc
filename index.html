@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simplified BaZi Element Calculator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .calculator-container {
+            width: 100%;
+            max-width: 450px;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box; /* Ensure padding is included in the element's width */
+            text-align: center;
+        }
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 25px;
+            color: #343a40;
+            letter-spacing: 1px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            font-weight: 600;
+            color: #495057;
+            display: block;
+            margin-bottom: 8px;
+        }
+        input[type="text"],
+        select,
+        input[type="time"] {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            color: #495057;
+        }
+        button {
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 6px;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result-box {
+            margin-top: 30px;
+            padding: 25px;
+            border: 1px solid #ced4da;
+            border-radius: 12px;
+            background-color: #f8f9fa;
+            box-sizing: border-box;
+            text-align: center;
+            display: none; /* Initially hide the result box */
+        }
+        .result {
+            font-size: 22px;
+            font-weight: bold;
+            color: #343a40;
+            margin-bottom: 15px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+        .image-source {
+            font-size: 12px;
+            color: #868e96;
+            margin-top: 10px;
+            text-align: center;
+            display: none; /* Initially hide the image source */
+            font-style: italic;
+        }
+        #new-input {
+            display: none; /* Initially hide the New Input button */
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 6px;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+        #new-input:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator-container">
+            <h1>Simplified BaZi Element Calculator</h1>
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" placeholder="Enter your name">
+            </div>
+            <div class="form-group">
+                <label for="dob-day">Date of Birth:</label>
+                <select id="dob-day"></select>
+                <select id="dob-month"></select>
+                <select id="dob-year"></select>
+            </div>
+            <div class="form-group">
+                <label for="time">Time of Birth (optional):</label>
+                <input type="time" id="time">
+            </div>
+            <div class="form-group">
+                <label for="gender">Gender:</label>
+                <select id="gender">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+            <button onclick="calculateElement()">Calculate</button>
+            <div class="result-box" id="result-box">
+                <div class="result" id="result"></div>
+                <img id="element-image" src="https://images.squarespace-cdn.com/content/v1/641c487609749c7618151547/1682865658558-G7R19DHTFNMTRHOLX4RN/Five+Elements.png" alt="Five Elements">
+                <p id="image-source" class="image-source">Image source: squarespace-cdn.com</p>
+            </div>
+            <button id="new-input" onclick="resetForm()">New Input</button>
+        </div>
+    </div>
+
+    <script>
+        // Populate the dropdowns for day, month, and year
+        window.onload = function() {
+            const dayDropdown = document.getElementById('dob-day');
+            const monthDropdown = document.getElementById('dob-month');
+            const yearDropdown = document.getElementById('dob-year');
+            
+            for (let i = 1; i <= 31; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.text = i;
+                dayDropdown.add(option);
+            }
+            
+            const months = [
+                "January", "February", "March", "April", "May", "June", 
+                "July", "August", "September", "October", "November", "December"
+            ];
+            
+            months.forEach((month, index) => {
+                const option = document.createElement('option');
+                option.value = index + 1;
+                option.text = month;
+                monthDropdown.add(option);
+            });
+            
+            const currentYear = new Date().getFullYear();
+            for (let i = currentYear; i >= 1900; i--) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.text = i;
+                yearDropdown.add(option);
+            }
+        };
+
+        function calculateElement() {
+            const day = document.getElementById('dob-day').value;
+            const month = document.getElementById('dob-month').value;
+            const year = document.getElementById('dob-year').value;
+
+            if (!day || !month || !year) {
+                alert('Please enter your complete date of birth.');
+                return;
+            }
+
+            const dob = new Date(year, month - 1, day);
+            const yearNumber = dob.getFullYear();
+
+            // Simplified BaZi element calculation (based on year only)
+            const elements = ['Wood', 'Fire', 'Earth', 'Metal', 'Water'];
+            const favorableElements = {
+                'Wood': 'Fire, Earth',
+                'Fire': 'Earth, Metal',
+                'Earth': 'Metal, Water',
+                'Metal': 'Water, Wood',
+                'Water': 'Wood, Fire'
+            };
+            const elementIndex = yearNumber % 5;
+            const resultElement = elements[elementIndex];
+            const favorable = favorableElements[resultElement];
+
+            document.getElementById('result').innerHTML = `
+                <p>Your BaZi Element is: <strong>${resultElement}</strong></p>
+                <p>Favorable Elements: <strong>${favorable}</strong></p>
+            `;
+
+            // Show the result box, image, image source, and New Input button
+            document.getElementById('result-box').style.display = 'block';
+            document.getElementById('element-image').style.display = 'block';
+            document.getElementById('image-source').style.display = 'block';
+            document.getElementById('new-input').style.display = 'block';
+
+            // Scroll to the top of the container to show the title and result
+            document.querySelector('.container').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        function resetForm() {
+            // Reset all form fields
+            document.getElementById('name').value = '';
+            document.getElementById('dob-day').selectedIndex = 0;
+            document.getElementById('dob-month').selectedIndex = 0;
+            document.getElementById('dob-year').selectedIndex = 0;
+            document.getElementById('time').value = '';
+            document.getElementById('gender').selectedIndex = 0;
+
+            // Hide the result box, image, image source, and New Input button
+            document.getElementById('result-box').style.display = 'none';
+            document.getElementById('element-image').style.display = 'none';
+            document.getElementById('image-source').style.display = 'none';
+            document.getElementById('new-input').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
